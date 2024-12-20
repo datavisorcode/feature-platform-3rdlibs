@@ -25,6 +25,8 @@ ExternalProject_Add(arrow_project
     PREFIX ${CMAKE_BINARY_DIR}/arrow
     GIT_REPOSITORY https://github.com/apache/arrow.git
     GIT_TAG apache-arrow-17.0.0
+    GIT_SHALLOW 1
+    GIT_PROGRESS 1
     SOURCE_SUBDIR cpp
     CMAKE_ARGS
         -DARROW_BUILD_SHARED=ON
@@ -54,6 +56,8 @@ ExternalProject_Add(duckdb_project
     PREFIX ${CMAKE_BINARY_DIR}/duckdb
     GIT_REPOSITORY https://github.com/duckdb/duckdb.git
     GIT_TAG v1.1.1
+    GIT_SHALLOW 1
+    GIT_PROGRESS 1
     CMAKE_ARGS
         -DBUILD_SHARED_LIBS=ON
         -DCMAKE_BUILD_TYPE=Release
@@ -72,6 +76,8 @@ ExternalProject_Add(adbc_project
     PREFIX ${CMAKE_BINARY_DIR}/adbc
     GIT_REPOSITORY https://github.com/apache/arrow-adbc.git
     GIT_TAG maint-0.7.0
+    GIT_SHALLOW 1
+    GIT_PROGRESS 1
     SOURCE_SUBDIR c
     CMAKE_ARGS
         -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/adbc/src/adbc_project-build
@@ -81,29 +87,11 @@ ExternalProject_Add(adbc_project
     BUILD_ALWAYS OFF
 )
 
-# Set up include and library directories
-set(ARROW_INCLUDE_DIR ${ARROW_INSTALL_DIR}/include)
-set(ARROW_LIBRARY_DIR ${ARROW_INSTALL_DIR}/lib)
-set(DUCKDB_INCLUDE_DIR ${DUCKDB_INSTALL_DIR}/include)
-set(DUCKDB_LIBRARY_DIR ${DUCKDB_INSTALL_DIR}/lib)
-set(ADBC_INCLUDE_DIR ${CMAKE_BINARY_DIR}/adbc/src/adbc_project)
-set(ADBC_LIBRARY_DIR ${CMAKE_BINARY_DIR}/adbc/src/adbc_project-build/driver/common)
-
-
-# Detect the operating system to handle linking for macOS (.dylib) and Linux (.so)
-if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-    set(ARROW_LIB ${ARROW_LIBRARY_DIR}/libarrow.dylib)
-    set(DUCKDB_LIB ${DUCKDB_LIBRARY_DIR}/libduckdb.dylib)
-else()
-    set(ARROW_LIB ${ARROW_LIBRARY_DIR}/libarrow.so)
-    set(DUCKDB_LIB ${DUCKDB_LIBRARY_DIR}/libduckdb.so)
-endif()
-
 # 创建一个自定义目标来复制库文件
 add_custom_target(copy_libraries ALL
     COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/prebuild/arrow/include
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/prebuild/duckdb/include
     COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/prebuild/arrow/lib
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/prebuild/duckdb/include
     COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/prebuild/duckdb/lib
     COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/prebuild/adbc/include
     COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/prebuild/adbc/lib
@@ -117,7 +105,6 @@ add_custom_target(copy_libraries ALL
 
 # 添加依赖关系，确保库先被编译
 add_dependencies(copy_libraries arrow_project duckdb_project adbc_project)
-
 # 添加清理目标
 add_custom_target(clean_all
     COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/arrow
