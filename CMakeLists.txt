@@ -87,20 +87,29 @@ ExternalProject_Add(adbc_project
     BUILD_ALWAYS OFF
 )
 
+# Set up include and library directories
+set(ARROW_INCLUDE_DIR ${ARROW_INSTALL_DIR}/include)
+set(ARROW_LIBRARY_DIR ${ARROW_INSTALL_DIR}/lib)
+set(DUCKDB_INCLUDE_DIR ${DUCKDB_INSTALL_DIR}/include)
+set(DUCKDB_LIBRARY_DIR ${DUCKDB_INSTALL_DIR}/lib)
+set(ADBC_INCLUDE_DIR ${CMAKE_BINARY_DIR}/adbc/src/adbc_project)
+set(ADBC_LIBRARY_DIR ${CMAKE_BINARY_DIR}/adbc/src/adbc_project-build/driver/common)
+
 # 创建一个自定义目标来复制库文件
 add_custom_target(copy_libraries ALL
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/prebuild/arrow/include
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/prebuild/arrow/lib
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/prebuild/duckdb/include
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/prebuild/duckdb/lib
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/prebuild/adbc/include
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/prebuild/adbc/lib
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${ARROW_INCLUDE_DIR} ${CMAKE_BINARY_DIR}/prebuild/arrow/include
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${DUCKDB_INCLUDE_DIR} ${CMAKE_BINARY_DIR}/prebuild/duckdb/include
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${ARROW_LIBRARY_DIR} ${CMAKE_BINARY_DIR}/prebuild/arrow/lib
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${DUCKDB_LIBRARY_DIR} ${CMAKE_BINARY_DIR}/prebuild/duckdb/lib
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${ADBC_INCLUDE_DIR} ${CMAKE_BINARY_DIR}/prebuild/adbc/include
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${ADBC_LIBRARY_DIR} ${CMAKE_BINARY_DIR}/prebuild/adbc/lib
+    # 放置到对应的系统目录下
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/prebuild/${CMAKE_SYSTEM_NAME}/arrow/include
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/prebuild/${CMAKE_SYSTEM_NAME}/arrow/lib
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/prebuild/${CMAKE_SYSTEM_NAME}/duckdb/include
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/prebuild/${CMAKE_SYSTEM_NAME}/duckdb/lib
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/prebuild/${CMAKE_SYSTEM_NAME}/adbc/include
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/prebuild/${CMAKE_SYSTEM_NAME}/adbc/lib
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${ARROW_INCLUDE_DIR} ${CMAKE_BINARY_DIR}/prebuild/${CMAKE_SYSTEM_NAME}/arrow/include
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${DUCKDB_INCLUDE_DIR} ${CMAKE_BINARY_DIR}/prebuild/${CMAKE_SYSTEM_NAME}/duckdb/include
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${ARROW_LIBRARY_DIR} ${CMAKE_BINARY_DIR}/prebuild/${CMAKE_SYSTEM_NAME}/arrow/lib
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${DUCKDB_LIBRARY_DIR} ${CMAKE_BINARY_DIR}/prebuild/${CMAKE_SYSTEM_NAME}/duckdb/lib
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${ADBC_INCLUDE_DIR} ${CMAKE_BINARY_DIR}/prebuild/${CMAKE_SYSTEM_NAME}/adbc/include
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${ADBC_LIBRARY_DIR} ${CMAKE_BINARY_DIR}/prebuild/${CMAKE_SYSTEM_NAME}/adbc/lib
 )
 
 # 添加依赖关系，确保库先被编译
